@@ -1,6 +1,6 @@
 #!/bin/zsh
 # https://gist.github.com/iTrooz/712093480b3261698baec2f90fb4868b
-# Called by crontab
+# Called by crontab/systemd timer
 set -e
 trap 'on_exit $?' EXIT
 on_exit() {
@@ -23,8 +23,9 @@ while IFS= read -r line || [ -n "$line" ]; do
     [[ -z "$line" ]] && continue
             BACKUP_FOLDERS+=("$(eval echo $line)")
 done < "$SCRIPT_DIR/folders.txt"
-echo $BACKUP_FOLDERS
+echo "Folders to backup: $BACKUP_FOLDERS"
 
+# Do not run if on a metered network
 for uuid in $(nmcli --fields=uuid connection show --active | tail -n +2); do
     metered=$(nmcli connection show "$uuid" | grep -i metered | awk '{print $2}')
     echo "connection $uuid metered status: $metered"
@@ -38,8 +39,8 @@ backup_output="$($SCRIPT_DIR/restic.sh backup "${BACKUP_FOLDERS[@]}" --json)"
 
 echo "Parse backup summary and notify"
 last_json=$(echo "$backup_output" | jq -s '.[-1]')
+backup_time=$(echo "$last_json" | jq -r '.total_duration')
 backup_time_rounded=$(LC_NUMERIC=C printf "%.2f" "$backup_time")
-backup_time_rounded=$(printf "%.2f" "$backup_time")
 data_bytes=$(echo "$last_json" | jq -r '.total_bytes_processed')
 human_size=$(numfmt --to=iec-i --suffix=B "$data_bytes")
 notify-send "Restic Backup Complete" "Time: ${backup_time_rounded}s, Size: ${human_size}"
