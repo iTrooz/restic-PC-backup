@@ -46,4 +46,4 @@ human_size=$(numfmt --to=iec-i --suffix=B "$data_bytes")
 notify-send "Restic Backup Complete" "Time: ${backup_time_rounded}s, Size: ${human_size}"
 
 echo "Forget old backups"
-$SCRIPT_DIR/restic.sh forget --keep-daily 3 --keep-weekly 1 --keep-monthly 1 --prune
+$SCRIPT_DIR/restic.sh forget --keep-daily 3 --keep-weekly 1 --keep-monthly 1 --group-by tags --prune
