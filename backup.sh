@@ -1,4 +1,5 @@
 #!/bin/zsh
+# https://gist.github.com/iTrooz/712093480b3261698baec2f90fb4868b
 # Called by crontab
 set -e
 trap 'on_exit $?' EXIT
