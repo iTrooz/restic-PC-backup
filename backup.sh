@@ -21,7 +21,7 @@ SCRIPT_DIR=$(realpath $(dirname $0))
 BACKUP_FOLDERS=()
 while IFS= read -r line || [ -n "$line" ]; do
     [[ -z "$line" ]] && continue
-            BACKUP_FOLDERS+=("$(eval echo $line)")
+    BACKUP_FOLDERS+=("$(eval echo $line)")
 done < "$SCRIPT_DIR/folders.txt"
 echo "Folders to backup: $BACKUP_FOLDERS"
 
