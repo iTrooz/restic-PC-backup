@@ -23,7 +23,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     [[ -z "$line" ]] && continue
     BACKUP_FOLDERS+=("$(eval echo $line)")
 done < "$SCRIPT_DIR/folders.txt"
-echo "Folders to backup: $BACKUP_FOLDERS"
+echo "Folders to backup (${#BACKUP_FOLDERS[@]}): ${BACKUP_FOLDERS[@]}"
 
 # Do not run if on a metered network
 for uuid in $(nmcli --fields=uuid connection show --active | tail -n +2); do
