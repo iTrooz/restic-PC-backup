@@ -5,4 +5,4 @@ set -a
 . "$SCRIPTDIR/.env"
 set +a
 
-restic $@
+restic "$@"
