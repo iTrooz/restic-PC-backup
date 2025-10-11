@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 # https://gist.github.com/iTrooz/712093480b3261698baec2f90fb4868b
 # Called by crontab/systemd timer
 set -e
@@ -17,7 +17,9 @@ on_exit() {
 }
 
 SCRIPT_DIR=$(realpath $(dirname $0))
+
 # Read folders from folders.txt, expand ~, and store as array
+echo "Read folders to backup from $SCRIPT_DIR/folders.txt"
 BACKUP_FOLDERS=()
 while IFS= read -r line || [ -n "$line" ]; do
     [[ -z "$line" ]] && continue
@@ -32,6 +34,11 @@ for uuid in $(nmcli --fields=uuid connection show --active | tail -n +2); do
     if [ "$metered" = "yes" ]; then
         exit 10
     fi
+done
+
+echo "Run hooks"
+for hook in "$SCRIPT_DIR/hooks/"*; do
+    [ -x "$hook" ] && "$hook"
 done
 
 echo "Run restic backup"
