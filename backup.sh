@@ -16,15 +16,16 @@ on_exit() {
     fi
 }
 
-SCRIPT_DIR=$(realpath $(dirname $0))
+# Set working directory
+cd "$(realpath $(dirname $0))"
 
 # Read folders from folders.txt, expand ~, and store as array
-echo "Read folders to backup from $SCRIPT_DIR/folders.txt"
+echo "Read folders to backup from folders.txt"
 BACKUP_FOLDERS=()
 while IFS= read -r line || [ -n "$line" ]; do
     [[ -z "$line" ]] && continue
     BACKUP_FOLDERS+=("$(eval echo $line)")
-done < "$SCRIPT_DIR/folders.txt"
+done < "folders.txt"
 echo "Folders to backup (${#BACKUP_FOLDERS[@]}): ${BACKUP_FOLDERS[@]}"
 
 # Do not run if on a metered network
@@ -37,19 +38,19 @@ for uuid in $(nmcli --fields=uuid connection show --active | tail -n +2); do
 done
 
 # Create temporary folder for hooks data
-rm -rf $SCRIPT_DIR/tmp
-mkdir -p $SCRIPT_DIR/tmp
+rm -rf ./tmp
+mkdir -p ./tmp
 
 echo "Run hooks"
-for hook in "$SCRIPT_DIR/hooks/"*; do
+for hook in "./hooks/"*; do
     [ -x "$hook" ] && "$hook"
 done
 
 echo "Run restic backup"
-backup_output="$($SCRIPT_DIR/restic.sh backup "${BACKUP_FOLDERS[@]}" --json)"
+backup_output="$(./restic.sh backup "${BACKUP_FOLDERS[@]}" --json)"
 
 # Delete temporary folder
-rm -rf $SCRIPT_DIR/tmp
+rm -rf ./tmp
 
 echo "Parse backup summary and notify"
 last_json=$(echo "$backup_output" | jq -s '.[-1]')
