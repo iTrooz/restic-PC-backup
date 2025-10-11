@@ -8,4 +8,4 @@
 ## Configure script
 - Create a `folder.txt` file with the list of folders to backup, one per line. [Example](./folders.example.txt)
 - Create a `.env` from `.env.example` (used to provide restic variables)
-- Add hooks in `./hooks/`. Some examples are available in `./hooks.example`
+- (Optional) Add hooks in `./hooks/`. Some examples are available in `./hooks.example`. These hooks will run before the backup. You will still need to add the associated folders to `folders.txt`
