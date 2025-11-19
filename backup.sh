@@ -3,10 +3,17 @@
 # Called by crontab/systemd timer
 set -e
 trap 'on_exit $?' EXIT
+start=$(date +%s%3N)
 on_exit() {
     status=$1
     if [ $status -eq 0 ]; then
-        echo "Success"
+        end=$(date +%s%3N)
+        duration_secs=$((end - start))
+        LC_NUMERIC=C # for printf decimal point
+        duration=$(printf "%.1f\n" $(echo $duration_secs/1000 | bc -l))
+        msg="Time: ${duration}s, Size: ${human_size}"
+        echo "Success: $msg"
+        notify-send "Restic Backup" "$msg" 
     elif [ $status -eq 10 ]; then
         echo "Failed because of metered network"
         notify-send "Restic backup" "Failed because of metered network"
@@ -63,7 +70,6 @@ backup_time=$(echo "$last_json" | jq -r '.total_duration')
 backup_time_rounded=$(LC_NUMERIC=C printf "%.2f" "$backup_time")
 data_bytes=$(echo "$last_json" | jq -r '.total_bytes_processed')
 human_size=$(numfmt --to=iec-i --suffix=B "$data_bytes")
-notify-send "Restic Backup Complete" "Time: ${backup_time_rounded}s, Size: ${human_size}"
 
 echo "Forget old backups"
 restic forget \
